@@ -1,55 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Efeito no botão de revolução
-    const revolutionBtn = document.getElementById('revolution-btn');
-    
-    revolutionBtn.addEventListener('click', function() {
-        // Altera o texto do botão
-        this.textContent = 'A revolução começou!';
-        
-        // Efeito visual
-        this.style.transform = 'scale(1.1)';
-        this.style.boxShadow = '0 0 15px rgba(198, 40, 40, 0.7)';
-        
-        // Cria efeito de manifesto revolucionário
-        const manifesto = document.createElement('div');
-        manifesto.className = 'dialogue';
-        manifesto.innerHTML = `
-            <p><span class="speaker">Manifesto:</span> Trabalhadores do mundo, uni-vos! O conhecimento é poder e o poder deve pertencer ao povo!</p>
-            <p><span class="speaker">Sócrates:</span> A verdadeira sabedoria está em reconhecer que a justiça social é a mais elevada forma de virtude.</p>
-        `;
-        
-        // Insere antes do rodapé
-        document.querySelector('main').appendChild(manifesto);
-        
-        // Rolagem automática para o manifesto
-        manifesto.scrollIntoView({ behavior: 'smooth' });
-        
-        // Efeito de mudança de cores
-        setTimeout(() => {
-            document.body.style.transition = 'background-color 2s ease';
-            document.body.style.backgroundColor = '#f0e6e6';
-            
-            // Restaura após 3 segundos
-            setTimeout(() => {
-                document.body.style.backgroundColor = '';
-            }, 3000);
-        }, 500);
-    });
-    
     // Efeito de digitação no título
-    const title = document.querySelector('header h1');
-    const originalText = title.textContent;
-    title.textContent = '';
+    const titles = document.querySelectorAll('header h1');
     
-    let i = 0;
-    const typingEffect = setInterval(() => {
-        if (i < originalText.length) {
-            title.textContent += originalText.charAt(i);
-            i++;
-        } else {
-            clearInterval(typingEffect);
+    titles.forEach(title => {
+        if (!title.dataset.typed) {
+            const originalText = title.textContent;
+            title.textContent = '';
+            title.dataset.typed = 'true';
+            
+            let i = 0;
+            const typingEffect = setInterval(() => {
+                if (i < originalText.length) {
+                    title.textContent += originalText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingEffect);
+                }
+            }, 100);
         }
-    }, 100);
+    });
     
     // Efeito de revelação nas seções
     const sections = document.querySelectorAll('.section');
@@ -79,20 +48,73 @@ document.addEventListener('DOMContentLoaded', function() {
     // Revela seções durante o scroll
     window.addEventListener('scroll', revealSections);
     
-    // Efeito nas imagens da galeria
-    const imageCards = document.querySelectorAll('.image-card');
+    // Ajusta imagens para mobile
+    function adjustImages() {
+        const sobreImgs = document.querySelectorAll('.sobre-img');
+        const windowWidth = window.innerWidth;
+        
+        if (windowWidth < 768) {
+            sobreImgs.forEach(img => {
+                img.style.float = 'none';
+                img.style.margin = '0 auto 1.5rem';
+                img.style.maxWidth = '100%';
+            });
+        } else {
+            sobreImgs.forEach(img => {
+                img.style.float = 'left';
+                img.style.margin = '0 1.5rem 1rem 0';
+                img.style.maxWidth = '300px';
+            });
+        }
+    }
     
-    imageCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            const caption = this.querySelector('.image-caption');
-            caption.style.backgroundColor = 'rgba(198, 40, 40, 0.9)';
-            caption.style.color = 'white';
+    // Executa ao carregar e ao redimensionar
+    window.addEventListener('load', adjustImages);
+    window.addEventListener('resize', adjustImages);
+    
+    // Ativa link atual na navegação
+    const currentPage = location.pathname.split('/').pop().replace('.html', '') || 'index';
+    const navLinks = document.querySelectorAll('.main-nav a');
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        const linkPage = link.getAttribute('href').replace('.html', '');
+        if (linkPage === currentPage || (currentPage === 'index' && linkPage === '')) {
+            link.classList.add('active');
+        }
+    });
+    
+    // Validação do formulário de contato
+    const contactForm = document.querySelector('.contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validação simples
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const mensagem = document.getElementById('mensagem').value;
+            
+            if (nome && email && mensagem) {
+                alert('Mensagem enviada com sucesso! Entrarei em contato em breve.');
+                contactForm.reset();
+            } else {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+            }
+        });
+    }
+    
+    // Efeito hover nos itens da galeria
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    galleryItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            const caption = this.querySelector('.gallery-caption');
+            caption.style.backgroundColor = 'rgba(198, 40, 40, 0.05)';
         });
         
-        card.addEventListener('mouseleave', function() {
-            const caption = this.querySelector('.image-caption');
+        item.addEventListener('mouseleave', function() {
+            const caption = this.querySelector('.gallery-caption');
             caption.style.backgroundColor = '';
-            caption.style.color = '';
         });
     });
 });
